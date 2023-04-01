@@ -1,31 +1,5 @@
 #!/usr/bin/perl
 
-#--------------------------------------------------------
-# module SvgColors.pm
-#
-# This module is intended to be used to write SVG colors
-# properties to a SVG file ("fill", "stroke").
-#
-# You can use either 24-bits (6 digits, RGB) or 32-bits
-# (8 digits, RGBA) hexadecimal values to define your
-# colors.
-# But keep in mind that you cannot call:
-# `color_str($color, "rgba")` on a 6 digits value.
-#
-# The SVG supported formats are:
-# - "rgb" ...... "rgb(255,0,255)"
-# - "rgba" ..... "rgba(255,0,255,1.0)"
-# - "hex" ...... "#ff00ff"
-#
-# Please note that:
-# - with "rgba" format, the alpha value is a float
-#   between 0 and 1, not an integer between 0 and 255
-# - SVG does not support hexadecimal alpha value
-# - SVG also gives the possibility to write a 3 digits
-#   hexa color '#rgb', but it's not implemented here
-#--------------------------------------------------------
-
-
 package SvgColors;
 use v5.36;
 use Exporter 'import';
