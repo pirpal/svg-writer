@@ -23,19 +23,15 @@ has 'z' => (is => 'ro', isa => 'Num');
 package Circle;
 use Moose;
 
-has 'cx' => (is => 'ro', isa => 'Num');
-has 'cy' => (is => 'ro', isa => 'Num');
-has 'r' => (is => 'ro', isa => 'Num');
+has 'center' => (is => 'ro', isa => 'Vec2');
+has 'radius' => (is => 'ro', isa => 'Num');
 
 #---------------------------------------
 package Ellipse;
 use Moose;
 
-has 'cx' => (is => 'ro', isa => 'Num');
-has 'cy' => (is => 'ro', isa => 'Num');
-has 'rx' => (is => 'ro', isa => 'Num');
-has 'ry' => (is => 'ro', isa => 'Num');
-
+has 'center' => (is => 'ro', isa => 'Vec2');
+has 'round'  => (is => 'ro', isa => 'Vec2');
 
 #----------------------------------------
 package Line;
@@ -51,7 +47,7 @@ use Moose;
 has 'origin' => (is => 'ro', isa => 'Vec2');
 has 'width'  => (is => 'ro', isa => 'Num');
 has 'height' => (is => 'ro', isa => 'Num');
-has 'round'  => (is => 'ro', isa => 'Vec2');
+has 'round'  => (is => 'ro', isa => 'Vec2', required => 0);
 
 
 #___

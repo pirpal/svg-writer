@@ -29,12 +29,21 @@ my $svg = SvgFile->new(
     bg_color => $PALETTE{WHITE}
     );
 
-$svg->init;
 
 my $circle = Circle->new(
-    cx => 100, cy => 100, r => 50
+    center => Vec2->new(x => 200, y => 200),
+    radius => 50
     );
 
-$svg->w_circle($circle, $circle_style);
+$svg->init;
 
-$svg->finalize;
+#------------------------------
+open(my $fh, ">>", $svg->path) or die "Cannot open file: $!";
+
+
+$svg->w_circle($fh, $circle, $circle_style);
+
+$svg->finalize($fh);
+
+close($fh) or die "Cannot close file: $:";
+#-----------------------------

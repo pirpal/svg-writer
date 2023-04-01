@@ -66,8 +66,14 @@ sub color_str($color, $fmt) {
 #---------------------------------------
 package SvgStyle;
 use Moose;
+# attr `fill` is not required since we don't neeed
+# it to draw a Line; the method `SvgWriter::w_line`
+# can be called with a SvgStyle having a fill attribute,
+# it will just be ignored.
+# However, it's a better practice to define one or more
+# styles especially for lines, without `fill` attribute
 
-has 'fill', (is => 'ro', isa => 'Int');
+has 'fill', (is => 'ro', isa => 'Int', required => 0);
 has 'stroke', (is => 'ro', isa => 'Int');
 has 'stroke_w', (is => 'ro', isa => 'Num');
 has 'color_mode', (is => 'ro', isa => 'Str');
