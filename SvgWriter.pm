@@ -23,7 +23,24 @@ has 'path', (is => 'ro', isa => 'Str');
 has 'width', (is => 'ro', isa => 'Int');
 has 'height', (is => 'ro', isa => 'Int');
 has 'bg_color', (is => 'ro', isa => 'Int', required => 0);
-                                                                          
+
+
+sub w_style($self, $fh, $style) {
+    if ($style->fill) {
+	my $fill_str = color_str($style->fill, $style->color_mode);
+	print $fh "fill=\"$fill_str\" ";
+    }
+    my $stroke_str = color_str($style->stroke, $style->color_mode);
+    print $fh "stroke=\"$stroke_str\" ";
+    print $fh "stroke-width=\"", $style->stroke_w, "\" ";
+}
+
+
+sub w_close_markup($self, $fh) {
+    print $fh " />\n"
+}
+
+
 sub init($self) {
     open(my $fh, ">>", $self->path) or die "[ERR] failed to open svg: $!";
     # XML markup:
@@ -47,24 +64,42 @@ sub init($self) {
     close $fh or die "[ERR] failed to close file: $!";
 }
 
-sub w_circle($self, $c, $style) {
-    open(my $fh, ">>", $self->path) or die "[ERR] failed to open svg: $!";
-    my $cx = $c->cx;
-    my $cy = $c->cy;
-    my $r = $c->r;
-    print $fh "  <circle cx=\"$cx\" cy=\"$cy\" r=\"$r\" "; 
-    my $fill_str = color_str($style->fill, $style->color_mode);
-    my $stroke_str = color_str($style->stroke, $style->color_mode);
-    print $fh " fill=\"$fill_str\" stroke=\"$stroke_str\"";
-    print $fh " stroke-width=\"", $style->stroke_w, "\"";
-    print $fh " />\n";
-    close $fh or die "[ERR] failed to close file: $!";
+
+sub w_line($self, $fh, $line, $style) {
+    print $fh "  <line x1=\"", line->v1->x, "\" ";
+    print $fh "y1=\"", line->v1->y, "\" ";
+    print $fh "x2=\"", line->v2->x, "\" ";
+    print $fh "y2=\"", line->v2->y, "\" ";
+    $self->w_style($fh, $style);
+    $self->w_close_markup($fh);
 }
 
-sub finalize($self) {
-    open(my $fh, ">>", $self->path) or die "[ERR] failed to open svg: $!";
-    print $fh "</svg>";
-    close $fh or die "[ERR] failed to close file: $!";
+
+sub w_rect($self, $fh, $rect, $style) {
+    print $fh "  <rect x=\"", $rect->origin->x, "\" ";
+    print $fh "y=\"", $rect->origin->y, "\" ";
+    print $fh "width=\"", $rect->width, "\" ";
+    print $fh "height=\"", $rect->height, "\" ";
+    if ($rect->round) {
+	print $fh "rx=\"", $rect->round->x, "\" ";
+	print $fh "ry=\"", $rect->round->y, "\" ";
+    }
+    $self->w_style($fh, $style);
+    $self->w_close_markup($fh);
+}
+
+
+sub w_circle($self, $fh, $c, $style) {
+    my $cx = $c->center->x;
+    my $cy = $c->center->y;
+    my $r = $c->radius;
+    print $fh "  <circle cx=\"$cx\" cy=\"$cy\" r=\"$r\" "; 
+    $self->w_style($fh, $style);
+    $self->w_close_markup($fh);
+}
+
+sub finalize($self, $fh) {
+    print $fh "</svg>\n";
 }
 
 #____
