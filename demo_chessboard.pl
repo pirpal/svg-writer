@@ -8,12 +8,12 @@ use SvgGeometry;
 
 
 sub chessboard($path, $light, $dark, $sq_w) {
-    # $PATH <string> SVG file path to write out
-    #               (created if not exists)
-    # $LIGHT <int> hexadecimal 32-bit int as '0xFF0080FF'
-    # $DARK  <int> "
-    # $SQ_W Int: square width in piwels. Final SVG size
-    # is ($sq_w * 8) x ( $sq_w * 8)
+    # $PATH string: SVG file path to write out
+    #              (created if not exists)
+    # $LIGHT int: hexadecimal 32-bit int as '0xFF0080FF'
+    # $DARK  int: "
+    # $SQ_W  int: square width in piwels. Final SVG size
+    #             is: ($sq_w * 8) x ( $sq_w * 8)
     print " < creating SvgStyle 'dark'...\n";
     my $dark_style = SvgStyle->new(
         fill       => $dark,
@@ -27,8 +27,8 @@ sub chessboard($path, $light, $dark, $sq_w) {
     print " < creating SvgFile $w x $w as '$path'\n";
     my $svg = SvgFile->new(
         path     => $path,
-        width    => int($sq_w * 8),
-        height   => int($sq_w * 8),
+        width    => $w,
+        height   => $w,
         bg_color => $light
         );
     $svg->init;

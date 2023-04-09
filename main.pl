@@ -8,8 +8,8 @@ use SvgGeometry;
 
 
 # --- define: out SVG file format in pixels:
-use constant OUT_W => 400;
-use constant OUT_H => 400;
+use constant OUT_W => 320;
+use constant OUT_H => 320;
 
 
 # --- define: colors and styles
@@ -66,8 +66,8 @@ $svg->init;
 # --- define: shapes
 my $circle = Circle->new(
    id => "circle-1",
-   center => Vec2->new(x => 200, y => 200),
-   radius => 100
+   center => Vec2->new(x => OUT_H / 2, y => OUT_H / 2),
+   radius => 80
    );
 
 my $rect = Rect->new(
@@ -81,7 +81,7 @@ my $rect = Rect->new(
 my $hex = RegPolygon->new(
     id => "hexagon",
     center => Vec2->new(x => OUT_W / 2, y => OUT_H / 2),
-    radius => 80.0,
+    radius => 48.0,
     sides  => 6,
     flat   => 1
     );
@@ -110,5 +110,5 @@ foreach (0..10) {
 
 $svg->finalize($fh);
 
-close($fh) or die "Xan't close file: $!";
+close($fh) or die "Can't close file: $!";
 

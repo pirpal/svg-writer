@@ -4,7 +4,7 @@
 package SvgGeometry;
 use v5.36;
 use Exporter 'import';
-our @EXPORT_OK = qw(Circle Ellipse Line Rect RegPolygon);
+our @EXPORT_OK = qw(Vec2 Vec3 Circle Ellipse Line Triangle Rect RegPolygon);
 
 our $PI = 3.14159265359; 
 
@@ -23,6 +23,10 @@ use constant {
 package SvgObject;
 use Moose;
 # Base class for ids
+# Each object is responsible for printing its own
+# id or do nothing if it has no `id` attribute
+# Each shape function contains a call to:
+# `<obj>->print_id($fh)`
 
 has 'id', (is => 'ro', 'isa' => 'Str', required => 0);
 
@@ -40,6 +44,10 @@ package SvgGroup;
 use Moose;
 extends 'SvgObject';
 
+# TODO: SvgGroup as a container of refs
+# If a SvgStyle is providden to _new,
+# group's elements inherit their style from
+# the group
 
 has 'style', (is => 'ro',
 	      isa => 'SvgStyle',
@@ -55,14 +63,6 @@ extends 'SvgObject';
 
 has 'x' => (is => 'rw', isa => 'Num', writer => 'set_x');
 has 'y' => (is => 'rw', isa => 'Num', writer => 'set_y');
-
-#sub set_x($self, $new_x) {
-#    $self->x = $new_x;
-#}
-#
-#sub set_y($self, $new_y) {
-#    $self->y = $new_y;
-#}
 
 sub log($self) {
     my $p = \$self;
@@ -214,20 +214,5 @@ no Moose;
 __PACKAGE__->meta->make_immutable;
 
 
-
-#;  - Star
-package Star;
-use Moose;
-extends 'SvgObject';
-
-has 'center',     (is => 'rw', isa => 'Vec2');
-has 'branches',   (is => 'rw', isa => 'Num');
-has 'in_radius',  (is => 'rw', isa => 'Num');
-has 'out_radius', (is => 'rw', isa => 'Num');
-
-
-no Moose;
-__PACKAGE__->meta->make_immutable;
-
-#;]
+#___end.
 1;
