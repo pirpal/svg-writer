@@ -40,7 +40,6 @@ sub w_close_markup($self, $fh) {
     print $fh " />\n"
 }
 
-
 sub init($self) {
     open(my $fh, ">", $self->path) or die "[ERR] failed to open svg: $!";
     # XML markup:
@@ -66,7 +65,9 @@ sub init($self) {
 
 
 sub w_line($self, $fh, $line, $style) {
-    print $fh "  <line x1=\"", $line->v1->x, "\" ";
+    print $fh "  <line ";
+    $line->print_id($fh);
+    print $fh "x1=\"", $line->v1->x, "\" ";
     print $fh "y1=\"", $line->v1->y, "\" ";
     print $fh "x2=\"", $line->v2->x, "\" ";
     print $fh "y2=\"", $line->v2->y, "\" ";
@@ -75,8 +76,11 @@ sub w_line($self, $fh, $line, $style) {
 }
 
 
+
 sub w_rect($self, $fh, $rect, $style) {
-    print $fh "  <rect x=\"", $rect->origin->x, "\" ";
+    print $fh "  <rect ";
+    $rect->print_id($fh);
+    print $fh "x=\"", $rect->origin->x, "\" ";
     print $fh "y=\"", $rect->origin->y, "\" ";
     print $fh "width=\"", $rect->width, "\" ";
     print $fh "height=\"", $rect->height, "\" ";
@@ -93,24 +97,32 @@ sub w_circle($self, $fh, $c, $style) {
     my $cx = $c->center->x;
     my $cy = $c->center->y;
     my $r = $c->radius;
-    print $fh "  <circle cx=\"$cx\" cy=\"$cy\" r=\"$r\" "; 
+    print $fh "  <circle ";
+    $c->print_id($fh);
+    print $fh " cx=\"$cx\" cy=\"$cy\" r=\"$r\" "; 
     $self->w_style($fh, $style);
     $self->w_close_markup($fh);
 }
 
 sub w_triangle($self, $fh, $t, $style) {
+    print $fh "  <g ";
+    $t->print_id($fh);
     my $ab = Line->new(
 	v1 => $t->a,
 	v2 => $t->b);
+    print $fh "  ";
     $self->w_line($fh, $ab, $style);
     my $bc = Line->new(
         v1 => $t->b,
         v2 => $t->c);
+    print $fh "  ";
     $self->w_line($fh, $bc, $style);
     my $ac = Line->new(
         v1 => $t->a,
         v2 => $t->c);
+    print $fh "  ";
     $self->w_line($fh, $ac, $style);
+   
 }
 
 sub w_reg_polygon($self, $fh, $rp, $line_style) {
@@ -130,12 +142,14 @@ sub w_reg_polygon($self, $fh, $rp, $line_style) {
 	    $x2 = int($vertices[$max_index]->x + 0.5); # [last].x
 	    $y2 = int($vertices[$max_index]->y + 0.5); # [last].y
 	} else {
-            $x1 = int($vertices[$_]->x + 0.5);   # [$_].x   	    
+            $x1 = int($vertices[$_]->x + 0.5);   # [$_].x 
             $y1 = int($vertices[$_]->y + 0.5);   # [$_].y
             $x2 = int($vertices[$_-1]->x + 0.5); # [$_ - 1].x
             $y2 = int($vertices[$_-1]->y + 0.5); # [$_ - 1].y
 	}
-	print $fh "  <line x1=\"", $x1, "\" ";
+	print $fh "  <line ";
+	$rp->print_id($fh);
+	print $fh " x1=\"", $x1, "\" ";
 	print $fh "y1=\"", $y1, "\" ";
 	print $fh "x2=\"", $x2, "\" ";
 	print $fh "y2=\"", $y2, "\" ";
@@ -144,6 +158,21 @@ sub w_reg_polygon($self, $fh, $rp, $line_style) {
     }
 }
 
+
+
+#sub w_polygon($self, $fh, $id, @points, $style) {
+#    print $fh "  <polygon ";
+#    if ($id) {
+#	print $fh "id=\"", $id, "\" ";
+#    }
+#    print $fh ("points =\"");
+#    foreach (@points) {
+#	print $fh int($_->x + 0.5), ",", int($_->y + 0.5), " ";
+#    }
+#    print $fh "\" "; # close points quotes
+#    $self->w_style($fh, $style);
+#    $self->w_close_markup($fh);
+#}
 
 sub finalize($self, $fh) {
     print $fh "</svg>\n";
