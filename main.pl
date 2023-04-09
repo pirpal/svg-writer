@@ -65,11 +65,13 @@ $svg->init;
 
 # --- define: shapes
 my $circle = Circle->new(
+   id => "circle-1",
    center => Vec2->new(x => 200, y => 200),
    radius => 100
    );
 
 my $rect = Rect->new(
+    id => "rect-1",
     origin => Vec2->new(x => 80, y => 80),
     width => 64,
     height => 64,
@@ -77,41 +79,36 @@ my $rect = Rect->new(
     );
 
 my $hex = RegPolygon->new(
+    id => "hexagon",
     center => Vec2->new(x => OUT_W / 2, y => OUT_H / 2),
     radius => 80.0,
-    tag    => "hexagon",
     sides  => 6,
     flat   => 1
     );
-
-my $iso_triangle = RegPolygon->new(
-    center => Vec2->new(x => OUT_W / 2, y => OUT_H / 2),
-    radius => 24.0,
-    tag    => "hexagon",
-    sides  => 3,
-    flat   => 1 # will make an isocele triangle point right
-    );
-
-my $foo_triangle = Triangle->new(
-    a => Vec2->new(x => 320, y => 320),
-    b => Vec2->new(x => 240, y => 180),
-    c => Vec2->new(x => 150, y => 140));
-
-
-# --- Build and log hexagon vertices:
-my @vertices = $hex->build_vecs;
-foreach (@vertices) {
-    $_->log;
-}
 
 open(my $fh, ">>", $svg->path) or die "Can't open file: $!";
 
 $svg->w_circle($fh, $circle, $circle_style);
 $svg->w_rect($fh, $rect, $rect_style);
 $svg->w_reg_polygon($fh, $hex, $line_style);
-$svg->w_reg_polygon($fh, $iso_triangle, $line_style);
-$svg->w_triangle($fh, $foo_triangle, $triangle_style);
+
+my $x = 0.0;
+my $y = 0.0;
+my $tr_radius = 20.0;
+foreach (0..10) {
+    my $id_str = "polyg-" . "$_";
+    my $iso_tr = RegPolygon->new(
+	id => $id_str,
+	center => Vec2->new(x => $tr_radius + ($tr_radius / 2) + $tr_radius * $_,
+			    y => OUT_H - (OUT_H / 10)),
+	radius => $tr_radius,
+	sides => 3,
+	flat => 1);
+    $svg->w_reg_polygon($fh, $iso_tr, $rect_style);
+}
+
 
 $svg->finalize($fh);
 
 close($fh) or die "Xan't close file: $!";
+
