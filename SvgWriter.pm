@@ -76,7 +76,6 @@ sub w_line($self, $fh, $line, $style) {
 }
 
 
-
 sub w_rect($self, $fh, $rect, $style) {
     print $fh "  <rect ";
     $rect->print_id($fh);
@@ -105,7 +104,7 @@ sub w_circle($self, $fh, $c, $style) {
 }
 
 sub w_triangle($self, $fh, $t, $style) {
-    print $fh "  <g ";
+    print $fh "  <g > ";
     $t->print_id($fh);
     my $ab = Line->new(
 	v1 => $t->a,
@@ -122,7 +121,7 @@ sub w_triangle($self, $fh, $t, $style) {
         v2 => $t->c);
     print $fh "  ";
     $self->w_line($fh, $ac, $style);
-   
+    
 }
 
 sub w_reg_polygon($self, $fh, $rp, $line_style) {

@@ -59,7 +59,7 @@ sub color_str($color, $fmt) {
 	my $sb = fmt_hex($b);
 	return sprintf("#%s%s%s", $sr, $sg, $sb);
     } else {
-	die "[ERR] FMT must be: RGB_FMT | RGBA_FMT | HEX_FMT\n"; 
+	die "[ERR] FMT must be in ('hex', 'rgb', 'rgba')\n"; 
     }
 }
 
@@ -78,5 +78,9 @@ has 'stroke', (is => 'ro', isa => 'Int');
 has 'stroke_w', (is => 'ro', isa => 'Num');
 has 'color_mode', (is => 'ro', isa => 'Str');
 
-#___
+no Moose;
+__PACKAGE__->meta->make_immutable;
+
+
+#___ SvgColors.pm ]
 1;

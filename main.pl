@@ -2,113 +2,78 @@
 
 use v5.36;
 
-use lib '.'; # dev only
-use SvgWriter;
+use lib '.';
 use SvgGeometry;
+use SvgWriter;
+use List::Util 'shuffle';
 
+use constant {
+    SVG_H => 400,
+    SVG_W => 400,
+};
 
-# --- define: out SVG file format in pixels:
-use constant OUT_W => 320;
-use constant OUT_H => 320;
+sub rand_range($min, $max) {
+    return 10 + int rand($max - $min +1);
+}
 
-
-# --- define: colors and styles
 our %PALETTE = (
-    NUll_COLOR => 0x00000000, # 
-    BLACK      => 0x000000FF,  # #000000
-    BLUE       => 0x1364FFFF,  # #1364ff
-    BLUE_50    => 0x1364FF80,  # #1364ff - 50% alpha
-    GREEN_50   => 0x10c00880,  # #10c008 - 50% alpha
-    GREY       => 0x808080FF,  # #808080
-    PURPLE_50  => 0xF0A0C080,  # #f0a0c0 - 50% alpha
-    RED        => 0xFF3749FF,  # #ff3749
-    WHITE      => 0xFFFFFFFF,  # #ffffff
-    YELLOW     => 0xFFDB10FF,  # #ffdb10
-    );
+    #           0xrrggbbaa
+    BLUE_50   => 0x1030C080, # #1030c0 a 50%
+    GOLD_50   => 0xE0803050, # #e08030
+    GREEN_50  => 0x30A01080, # #30a010 a 50%
+    ORANGE_50 => 0xD0301080, # #d03010 a 50%
+); 
 
-
-my $circle_style = SvgStyle->new(
-    fill   => $PALETTE{GREEN_50},
-    stroke => $PALETTE{GREEN_50},
-    stroke_w => 1.0,
-    color_mode => "rgba"
-    );
-
-my $rect_style = SvgStyle->new(
-    fill   => $PALETTE{BLUE_50},
-    stroke => $PALETTE{BLACK},
-    stroke_w => 1.0,
-    color_mode => "rgba"
-    );
-
-my $line_style = SvgStyle->new(
-    stroke => $PALETTE{BLACK},
-    stroke_w => 1.0,
-    color_mode => "hex"
-    );
-
-my $triangle_style = SvgStyle->new(
-    fill => $PALETTE{YELLOW},
-    stroke => $PALETTE{PURPLE_50},
-    stroke_w => 4.0,
-    color_mode => "rgba"
-    );
-
-# --- define: SvgFile
 my $svg = SvgFile->new(
     path   => "out.svg",
-    width  => OUT_W,
-    height => OUT_W,
-    bg_color => $PALETTE{WHITE}
+    width  => SVG_W,
+    height => SVG_H,
+    bg_color => 0x808080FF
     );
 $svg->init;
 
-# --- define: shapes
-my $circle = Circle->new(
-   id => "circle-1",
-   center => Vec2->new(x => OUT_H / 2, y => OUT_H / 2),
-   radius => 80
-   );
 
-my $rect = Rect->new(
-    id => "rect-1",
-    origin => Vec2->new(x => 80, y => 80),
-    width => 64,
-    height => 64,
-    round => Vec2->new(x => 12, y => 12)
-    );
+my @color_keys = keys %PALETTE;
+my $min_shape_w = 32;
+my $max_shape_w = 96;
+my $stroke_w = 1;
+my $min_x = $min_shape_w;
+my $min_y = $min_shape_w;
+my $max_x = SVG_W - $min_shape_w;
+my $max_y = SVG_H - $min_shape_w;
 
-my $hex = RegPolygon->new(
-    id => "hexagon",
-    center => Vec2->new(x => OUT_W / 2, y => OUT_H / 2),
-    radius => 48.0,
-    sides  => 6,
-    flat   => 1
-    );
+open(my $fh, ">>", $svg->path) or die "[ ERR ] FileOpenError $!";
 
-open(my $fh, ">>", $svg->path) or die "Can't open file: $!";
+my $shapes_nb = rand_range(40, 100);
 
-$svg->w_circle($fh, $circle, $circle_style);
-$svg->w_rect($fh, $rect, $rect_style);
-$svg->w_reg_polygon($fh, $hex, $line_style);
+print "Writing $shapes_nb random circle to ", $svg->path, "...\n";
 
-my $x = 0.0;
-my $y = 0.0;
-my $tr_radius = 20.0;
-foreach (0..10) {
-    my $id_str = "polyg-" . "$_";
-    my $iso_tr = RegPolygon->new(
-	id => $id_str,
-	center => Vec2->new(x => $tr_radius + ($tr_radius / 2) + $tr_radius * $_,
-			    y => OUT_H - (OUT_H / 10)),
-	radius => $tr_radius,
-	sides => 3,
-	flat => 1);
-    $svg->w_reg_polygon($fh, $iso_tr, $rect_style);
+foreach (1..$shapes_nb) {
+    my @shuf_colors = shuffle(@color_keys);
+    my $_fill   = $shuf_colors[0];
+    #my $_stroke = $shuf_colors[1];
+    my $_shape_w = rand_range($min_shape_w, $max_shape_w);
+
+    my $style = SvgStyle->new(
+	fill       => $PALETTE{$_fill},
+	stroke     => $PALETTE{$_fill},
+	stroke_w   => $stroke_w,
+	color_mode => "rgba");
+
+    my $c = Circle->new(
+	id => "circle",
+	center => Vec2->new(
+	    x => rand_range($min_x, $max_x),
+	    y => rand_range($min_y, $max_y)
+	),
+	radius => rand_range($min_shape_w, $max_shape_w));
+    $svg->w_circle($fh, $c, $style);
 }
 
-
+print " < Finalizing and closing SVGFile...\n";
 $svg->finalize($fh);
 
-close($fh) or die "Can't close file: $!";
+close($fh) or die "[ ERR ] FileCloseError $!";
 
+print " < Exit 0.\n"
+#___
